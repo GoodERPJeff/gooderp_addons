@@ -88,7 +88,7 @@ class TestReport(TransactionCase):
 
         for result in results:
             result = (
-                self.env.['goods'].browse(result.get('goods')).name,
+                self.env.get('goods').browse(result.get('goods')).name,
                 result.get('warehouse'),
                 result.get('goods_qty_out'),
                 result.get('goods_qty_in'),
