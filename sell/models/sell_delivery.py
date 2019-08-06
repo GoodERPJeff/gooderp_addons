@@ -221,7 +221,7 @@ class SellDelivery(models.Model):
                                  precision_digits=decimal_amount.digits) == 1:
                     raise UserError(u'本次发货金额 + 客户应收余额 - 本次收款金额 不能大于客户信用额度！\n\
                      本次发货金额:%s\n 客户应收余额:%s\n 本次收款金额:%s\n客户信用额度:%s' % (
-                        amount, self.receipt, self.partner_id.receivable, self.partner_id.credit_limit))
+                        amount, self.partner_id.receivable, self.receipt, self.partner_id.credit_limit))
 
     def _line_qty_write(self):
         if self.order_id:
@@ -585,6 +585,7 @@ class SellDelivery(models.Model):
                     'price': line.price,
                     'tax_rate':line.tax_rate,
                     'cost_unit': line.cost_unit,
+                    'cost': line.cost,#退货取不到成本
                     'discount_rate': line.discount_rate,
                     'discount_amount': line.discount_amount,
                     'type': 'in',

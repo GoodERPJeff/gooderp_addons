@@ -348,8 +348,9 @@ class MoneyOrder(models.Model):
 
             # 收/付款单 存在已审核金额不为0的核销单
             total_current_reconciled = order.amount - order.advance_payment
-            if order.reconciled != total_current_reconciled:
-                raise UserError(u'单据已核销金额不为0，不能反审核！请检查核销单！')
+            decimal_amount = self.env.ref('core.decimal_amount')
+            if float_compare(order.reconciled, total_current_reconciled, precision_digits=decimal_amount.digits) != 0:
+                raise UserError(u'单据已核销金额不为0，不能反审核！请检查核销单!')
 
             total = 0
             for line in order.line_ids:
@@ -722,6 +723,8 @@ class MoneyInvoice(models.Model):
         for inv in self:
             if inv.state == 'draft':
                 raise UserError(u'请不要重复撤销')
+            if inv.reconciled != 0.0:
+                raise UserError(u'已核销的结算单不允许删除')
             inv.reconciled = 0.0
             inv.to_reconcile = 0.0
             inv.state = 'draft'
@@ -1155,6 +1158,7 @@ class ReconcileOrder(models.Model):
             invoices = self.env['money.invoice'].search([('name', '=', name)])
             for inv in invoices:
                 if inv.state == 'done':
+                    inv.reconciled = 0.0
                     inv.money_invoice_draft()
                 inv.unlink()
         return True
